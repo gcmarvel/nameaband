@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css"
+          integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+
+    <!-- jQuery and JS bundle w/ Popper.js -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx"
+            crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/rangeslider.js/2.3.3/rangeslider.min.css"
+          integrity="sha512-Rp0yZ3NMh1xOUZ4VHYggmX4pq4ZJdpcOETH03qBD5qNDsqTBw1MzUnX0T5PcTJmr2mNTOmtbxsHaGwzjylNpHA==" crossorigin="anonymous"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/rangeslider.js/2.3.3/rangeslider.min.js"
+            integrity="sha512-BUlWdwDeJo24GIubM+z40xcj/pjw7RuULBkxOTc+0L9BaGwZPwiwtbiSVzv31qR7TWx7bs6OPTE5IyfLOorboQ==" crossorigin="anonymous"></script>
+    <title>Выборы, выборы...</title>
+</head>
+<body>
+<div class="container">
+
+    <h1 class="text-center my-5">...кандидаты...</h1>
+    <div class="row p-3 my-3 d-none d-sm-flex">
+        <div class="col-6">
+            <h3>Название группы</h3>
+        </div>
+        <div class="col-1 text-center">
+            <h3>Оц</h3>
+        </div>
+        <div class="col-3 text-center">
+            <h3>Оценили</h3>
+        </div>
+        <div class="col-1">
+        </div>
+    </div>
+    {% for name in groupnames %}
+        <div class="namebox row p-3 my-3 ">
+            <div class="col-8 col-sm-6">
+                <h3>{{ name.name }}</h3>
+            </div>
+            <div class="col-4 col-sm-1 text-right text-sm-center">
+                <h3>{% for vote in name.votes.all %}
+                    {% if vote.bandmate.name == mate %}
+                        <h3><span class="d-sm-none">Оц: </span>{{ vote.value }}</h3>
+                    {% endif %}
+                {% endfor %}
+                </h3>
+            </div>
+            <div class="col-6 col-sm-3 row justify-content-sm-center mx-0 mt-3 mt-sm-0">
+                {% for vote in name.votes.all %}
+                    {% if vote.bandmate.name == 'drums' %}
+                        <div>
+                            <img src="https://icons.iconarchive.com/icons/google/noto-emoji-objects/48/62813-drum-icon.png">
+                        </div>
+                    {% endif %}
+                    {% if vote.bandmate.name == 'bass' %}
+                        <div>
+                            <img src="https://icons.iconarchive.com/icons/pc-unleashed/unleashed/48/guitar-icon.png">
+                        </div>
+                    {% endif %}
+                    {% if vote.bandmate.name == 'keys' %}
+                        <div>
+                            <img src="https://icons.iconarchive.com/icons/chrisbanks2/cold-fusion-hd/48/piano-icon.png">
+                        </div>
+                    {% endif %}
+                    {% if vote.bandmate.name == 'guitar' %}
+                        <div>
+                            <img src="https://icons.iconarchive.com/icons/wackypixel/lesters-electric-guitar/48/Burst-Guitar-icon.png">
+                        </div>
+                    {% endif %}
+                {% endfor %}
+
+            </div>
+            <div class="col-6 col-sm-2 text-right text-sm-center mt-3 mt-sm-0">
+                <button class="btn btn-primary" onclick="changeGroupname('{{ name.name }}')" data-toggle="modal" data-target="#eval">Оценить</button>
+            </div>
+        </div>
+
+    {% endfor %}
+    <button class="btn btn-primary mb-3" data-toggle="modal" data-target="#create">Добавить новый вариант</button>
+</div>
+<div class="modal" tabindex="-1" role="dialog" id="eval">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-center">По шкале от 1 до 10, насколько ты был бы счастлив, если бы наша группы называлась
+                    <span id="groupname"></span>
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="/" method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <input type="hidden" id="groupnameinput" name="groupname">
+                    <input type="hidden" id="mate" name="mate" value="{{ mate }}">
+                    <input type="range" min="1" max="10" step="1" value="5" name="value">
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Оценить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="modal" tabindex="-1" role="dialog" id="create">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-center">Добавить новый вариант названия, а то их у нас мало</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="/" method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <input type="hidden" id="mate" name="mate" value="{{ mate }}">
+                    <input type="text" class="form-control" placeholder="Название группы" name="newgroupname">
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Добавить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+
+<style>
+    .namebox {
+        background-color: #e5e5e5;
+    }
+
+    .rangeslider__handle {
+        padding: 8px 14px;
+        font-weight: 800;
+    }
+
+    @media (max-width: 991px) {
+        img {
+            max-width: 34px;
+            height: auto;
+        }
+    }
+
+</style>
+<script>
+    var $element = $('input[type="range"]');
+    var $handle;
+
+    $element
+        .rangeslider({
+            polyfill: false,
+            onInit: function () {
+                $handle = $('.rangeslider__handle', this.$range);
+                updateHandle($handle[0], this.value);
+            }
+        })
+        .on('input', function () {
+            updateHandle($handle[0], this.value);
+        });
+
+    function updateHandle(el, val) {
+        el.textContent = val;
+    }
+
+    let groupname = ''
+    let namediv = document.querySelector("#groupname");
+    let groupinput = document.querySelector("#groupnameinput");
+
+    function changeGroupname(val) {
+        groupname = val
+        namediv.innerHTML = '"' + groupname + '"'
+        groupinput.value = groupname
+    }
+</script>
+</html>
