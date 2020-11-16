@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.db.models import Count, Sum, F
 
 from .models import Bandmate, Groupname, Vote
 
@@ -28,3 +29,11 @@ def election(request):
         return render(request, 'election2020.html', context)
 
     return render(request, 'enter.html')
+
+
+def results (request):
+    context = {
+        'results': Groupname.objects.annotate(overall=Sum('votes__value')).order_by('-overall'),
+    }
+
+    return render(request, 'results.html', context)
